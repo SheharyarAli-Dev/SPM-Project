@@ -1,12 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ROLES } from '@/lib/session';
 import { useSession } from '@/lib/useSession';
 
 export default function Layout({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [searchVal, setSearchVal] = useState('');
   const { role, userId, update } = useSession();
   const [mounted, setMounted] = useState(false);
@@ -82,7 +83,13 @@ export default function Layout({ children }) {
             <input
               value={searchVal}
               onChange={e => setSearchVal(e.target.value)}
-              placeholder="Search transactions, invoices..."
+              onKeyDown={e => {
+                if (e.key === 'Enter' && searchVal.trim()) {
+                  router.push(`/dashboard/search?q=${encodeURIComponent(searchVal.trim())}`);
+                  setSearchVal('');
+                }
+              }}
+              placeholder="Search transactions, invoices… (Enter)"
               style={{ width: '100%', background: 'rgba(255,255,255,0.08)', color: 'white', fontSize: 14, padding: '8px 16px 8px 40px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', outline: 'none' }}
             />
           </div>
