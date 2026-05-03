@@ -126,6 +126,8 @@ export default function Home() {
               }}
               onClick={() => {
                 setSession({ role: r.role, userId: 1 });
+                localStorage.setItem('platform_user_id', '1');
+                localStorage.setItem('platform_user_role', r.role);
                 router.push(
                   r.role === ROLES.admin ? '/admin' : r.role === ROLES.client ? '/client' : '/dashboard',
                 );

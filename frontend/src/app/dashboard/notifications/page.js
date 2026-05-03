@@ -2,10 +2,10 @@
 import { useCallback, useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { notificationsAPI } from '@/services/api';
-import { useSession } from '@/lib/useSession';
+import { useCurrentUser } from '@/context/UserContext';
 
 export default function NotificationsPage() {
-  const { userId } = useSession();
+  const { userId } = useCurrentUser();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

@@ -2,10 +2,10 @@
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { transactionsAPI, walletAPI } from '@/services/api';
-import { useSession } from '@/lib/useSession';
+import { useCurrentUser } from '@/context/UserContext';
 
 export default function TransactionsPage() {
-  const { userId, role } = useSession();
+  const { userId, userRole: role } = useCurrentUser();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');

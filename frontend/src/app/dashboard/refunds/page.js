@@ -3,12 +3,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import Layout from '@/components/Layout';
 import { refundsAPI } from '@/services/api';
-import { useSession } from '@/lib/useSession';
-import { ROLES } from '@/lib/session';
+import { useCurrentUser } from '@/context/UserContext';
 import Link from 'next/link';
 
 export default function RefundsPage() {
-  const { userId, role } = useSession();
+  const { userId, userRole: role } = useCurrentUser();
   const [refunds, setRefunds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState('');
@@ -26,7 +25,7 @@ export default function RefundsPage() {
     try {
       const all = await refundsAPI.getAll();
       const scoped =
-        role === ROLES.admin ? all : (all || []).filter((r) => r.requested_by === userId);
+        role === 'admin' ? all : (all || []).filter((r) => r.requested_by === userId);
       setRefunds(scoped);
     } catch (e) {
       console.error(e);
@@ -43,7 +42,7 @@ export default function RefundsPage() {
 
   async function handleCreate() {
     try {
-      if (role === ROLES.admin) {
+      if (role === 'admin') {
         setMsg('Error: Admin cannot create refunds from this page.');
         return;
       }
@@ -116,7 +115,7 @@ export default function RefundsPage() {
             </h2>
           </div>
 
-          {role === ROLES.admin ? (
+          {role === 'admin' ? (
             <Link className="btn-primary" href="/admin/refunds" style={{ textDecoration: 'none' }}>
               Manage as Admin
             </Link>
@@ -143,7 +142,7 @@ export default function RefundsPage() {
           </div>
         )}
 
-        {showCreate && role !== ROLES.admin && (
+        {showCreate && role !== 'admin' && (
           <div className="card" style={{ padding: 28, marginBottom: 16 }}>
             <h3
               style={{

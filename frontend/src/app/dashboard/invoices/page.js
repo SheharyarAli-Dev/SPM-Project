@@ -2,10 +2,10 @@
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { invoicesAPI } from '@/services/api';
-import { useSession } from '@/lib/useSession';
+import { useCurrentUser } from '@/context/UserContext';
 
 export default function InvoicesPage() {
-  const { userId } = useSession();
+  const { userId } = useCurrentUser();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);

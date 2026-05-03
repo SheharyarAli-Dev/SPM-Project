@@ -4,13 +4,13 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Layout from '@/components/Layout';
 import { transactionsAPI, walletAPI, invoicesAPI, escrowAPI, refundsAPI, withdrawalsAPI } from '@/services/api';
-import { useSession } from '@/lib/useSession';
+import { useCurrentUser } from '@/context/UserContext';
 
 function SearchResults() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const q = searchParams.get('q') || '';
-  const { userId, role } = useSession();
+  const { userId, userRole: role } = useCurrentUser();
   const [query, setQuery] = useState(q);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState({ transactions: [], invoices: [], escrows: [], refunds: [], withdrawals: [] });

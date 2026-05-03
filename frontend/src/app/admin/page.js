@@ -3,12 +3,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import Layout from '@/components/Layout';
 import { refundsAPI, withdrawalsAPI } from '@/services/api';
-import { useSession } from '@/lib/useSession';
-import { ROLES } from '@/lib/session';
+import { useCurrentUser } from '@/context/UserContext';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
-  const { role, userId } = useSession();
+  const { userRole: role, userId } = useCurrentUser();
   const [loading, setLoading] = useState(true);
   const [withdrawals, setWithdrawals] = useState([]);
   const [refunds, setRefunds] = useState([]);
@@ -67,7 +66,7 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        {role !== ROLES.admin ? (
+        {role !== 'admin' ? (
           <div className="card" style={{ padding: 28 }}>
             <p style={{ fontWeight: 800, color: '#001736', fontFamily: 'Manrope, sans-serif' }}>
               Switch role to “Admin” in the top bar to use admin functionality.

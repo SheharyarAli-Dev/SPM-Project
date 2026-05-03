@@ -2,11 +2,10 @@
 import { useCallback, useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { milestonePaymentsAPI, escrowAPI } from '@/services/api';
-import { useSession } from '@/lib/useSession';
-import { ROLES } from '@/lib/session';
+import { useCurrentUser } from '@/context/UserContext';
 
 export default function MilestonesPage() {
-  const { userId, role } = useSession();
+  const { userId, userRole: role } = useCurrentUser();
   const [milestones, setMilestones] = useState([]);
   const [escrows, setEscrows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +18,7 @@ export default function MilestonesPage() {
     try {
       const e = await escrowAPI.getAll();
       const scoped =
-        role === ROLES.admin
+        role === 'admin'
           ? e
           : (e || []).filter(
             (x) => x.client_user_id === userId || x.freelancer_user_id === userId,
@@ -40,7 +39,7 @@ export default function MilestonesPage() {
 
   async function handleCreate() {
     try {
-      if (role !== ROLES.client) {
+      if (role !== 'client') {
         setMsg('Error: Only clients can create milestones.');
         return;
       }
@@ -58,7 +57,7 @@ export default function MilestonesPage() {
 
   async function handleApprove(id) {
     try {
-      if (role !== ROLES.client) {
+      if (role !== 'client') {
         setMsg('Error: Only clients can approve milestones.');
         return;
       }
@@ -72,7 +71,7 @@ export default function MilestonesPage() {
 
   async function handleReject(id) {
     try {
-      if (role !== ROLES.client) {
+      if (role !== 'client') {
         setMsg('Error: Only clients can reject milestones.');
         return;
       }
@@ -86,7 +85,7 @@ export default function MilestonesPage() {
 
   async function handleRelease(id) {
     try {
-      if (role !== ROLES.client) {
+      if (role !== 'client') {
         setMsg('Error: Only clients can release payments.');
         return;
       }
@@ -109,8 +108,8 @@ export default function MilestonesPage() {
           <button
             className="btn-primary"
             onClick={() => setShowCreate(!showCreate)}
-            disabled={role !== ROLES.client}
-            title={role !== ROLES.client ? 'Only clients can add milestones' : ''}
+            disabled={role !== 'client'}
+            title={role !== 'client' ? 'Only clients can add milestones' : ''}
           >
             + Add Milestone
           </button>
@@ -166,13 +165,13 @@ export default function MilestonesPage() {
                       <span className={`badge badge-${m.release_status === 'released' ? 'success' : 'pending'}`}>{m.release_status}</span>
                     </div>
                     <div style={{ display: 'flex', gap: 6 }}>
-                      {role === ROLES.client && m.approval_status === 'pending' && (
+                      {role === 'client' && m.approval_status === 'pending' && (
                         <button className="btn-primary" style={{ padding: '6px 12px', fontSize: 10 }} onClick={() => handleApprove(m.id)}>Approve</button>
                       )}
-                      {role === ROLES.client && m.approval_status === 'pending' && (
+                      {role === 'client' && m.approval_status === 'pending' && (
                         <button className="btn-danger" style={{ padding: '6px 12px', fontSize: 10 }} onClick={() => handleReject(m.id)}>Reject</button>
                       )}
-                      {role === ROLES.client && m.approval_status === 'approved' && m.release_status === 'not_released' && (
+                      {role === 'client' && m.approval_status === 'approved' && m.release_status === 'not_released' && (
                         <button className="btn-primary" style={{ padding: '6px 12px', fontSize: 10, background: '#2ca397' }} onClick={() => handleRelease(m.id)}>Release</button>
                       )}
                     </div>

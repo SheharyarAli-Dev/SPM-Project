@@ -2,11 +2,10 @@
 import { useCallback, useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { withdrawalsAPI, walletAPI, paymentMethodsAPI } from '@/services/api';
-import { useSession } from '@/lib/useSession';
-import { ROLES } from '@/lib/session';
+import { useCurrentUser } from '@/context/UserContext';
 
 export default function WithdrawalsPage() {
-  const { userId, role } = useSession();
+  const { userId, userRole: role } = useCurrentUser();
   const [activeTab, setActiveTab] = useState('request');
   const [wallet, setWallet] = useState(null);
   const [methods, setMethods] = useState([]);
@@ -69,7 +68,7 @@ export default function WithdrawalsPage() {
 
         {loading ? <p>Loading...</p> : (
           <>
-            {role === ROLES.admin && (
+            {role === 'admin' && (
               <div
                 style={{
                   padding: '12px 16px',
@@ -103,7 +102,7 @@ export default function WithdrawalsPage() {
               ))}
             </div>
 
-            {activeTab === 'request' && !submitted && role !== ROLES.admin && (
+            {activeTab === 'request' && !submitted && role !== 'admin' && (
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24 }}>
                 <div>
                   {/* Amount */}
@@ -153,7 +152,7 @@ export default function WithdrawalsPage() {
               </div>
             )}
 
-            {activeTab === 'request' && submitted && role !== ROLES.admin && (
+            {activeTab === 'request' && submitted && role !== 'admin' && (
               <div className="card" style={{ padding: 48, textAlign: 'center' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 64, color: '#2ca397', display: 'block', marginBottom: 16 }}>check_circle</span>
                 <h3 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 800, color: '#001736', fontSize: 20, marginBottom: 8 }}>Withdrawal Requested!</h3>

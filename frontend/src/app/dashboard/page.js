@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import Link from 'next/link';
 import { walletAPI, transactionsAPI, escrowAPI } from '@/services/api';
-import { useSession } from '@/lib/useSession';
+import { useCurrentUser } from '@/context/UserContext';
 
 export default function DashboardPage() {
-  const { userId, role } = useSession();
+  const { userId, userRole: role } = useCurrentUser();
   const [wallet, setWallet] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [escrows, setEscrows] = useState([]);

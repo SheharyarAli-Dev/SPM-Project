@@ -3,12 +3,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import Layout from '@/components/Layout';
 import Link from 'next/link';
-import { useSession } from '@/lib/useSession';
-import { ROLES } from '@/lib/session';
+import { useCurrentUser } from '@/context/UserContext';
 import { escrowAPI, invoicesAPI, milestonePaymentsAPI, walletAPI } from '@/services/api';
 
 export default function ClientDashboard() {
-  const { role, userId, sessionReady } = useSession();
+  const { userRole: role, userId, isLoading: ctxLoading } = useCurrentUser();
   const [loading, setLoading] = useState(true);
   const [wallet, setWallet] = useState(null);
   const [escrows, setEscrows] = useState([]);
@@ -16,8 +15,8 @@ export default function ClientDashboard() {
   const [invoices, setInvoices] = useState([]);
 
   useEffect(() => {
-    if (!sessionReady || !userId) return;
-    if (role !== ROLES.client) {
+    if (ctxLoading || !userId) return;
+    if (role !== 'client') {
       setLoading(false);
       return;
     }
@@ -47,7 +46,7 @@ export default function ClientDashboard() {
       }
     }
     load();
-  }, [sessionReady, userId, role]);
+  }, [ctxLoading, userId, role]);
 
   const stats = useMemo(() => {
     const activeEscrows = escrows.filter((e) => e.escrow_status === 'active' || e.escrow_status === 'pending').length;
@@ -71,9 +70,9 @@ export default function ClientDashboard() {
           </p>
         </div>
 
-        {!sessionReady || loading ? (
+        {ctxLoading || loading ? (
           <p>Loading...</p>
-        ) : role !== ROLES.client ? (
+        ) : role !== 'client' ? (
           <div className="card" style={{ padding: 28 }}>
             <p style={{ fontWeight: 800, color: '#001736', fontFamily: 'Manrope, sans-serif' }}>
               Switch role to “Client” in the top bar to use client functionality.

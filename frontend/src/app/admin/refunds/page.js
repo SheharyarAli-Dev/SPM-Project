@@ -3,11 +3,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import Layout from '@/components/Layout';
 import { refundsAPI } from '@/services/api';
-import { useSession } from '@/lib/useSession';
-import { ROLES } from '@/lib/session';
+import { useCurrentUser } from '@/context/UserContext';
 
 export default function AdminRefundsPage() {
-  const { role, userId } = useSession();
+  const { userRole: role, userId } = useCurrentUser();
   const [refunds, setRefunds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState('');
@@ -78,7 +77,7 @@ export default function AdminRefundsPage() {
           </div>
         )}
 
-        {role !== ROLES.admin ? (
+        {role !== 'admin' ? (
           <div className="card" style={{ padding: 28 }}>
             <p style={{ fontWeight: 800, color: '#001736', fontFamily: 'Manrope, sans-serif' }}>
               Switch role to “Admin” in the top bar to approve/reject refunds.

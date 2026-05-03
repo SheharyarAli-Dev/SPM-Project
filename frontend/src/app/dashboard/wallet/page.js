@@ -2,10 +2,10 @@
 import { useCallback, useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { walletAPI, paymentMethodsAPI, currencyAPI } from '@/services/api';
-import { useSession } from '@/lib/useSession';
+import { useCurrentUser } from '@/context/UserContext';
 
 export default function WalletPage() {
-  const { userId, role } = useSession();
+  const { userId, userRole: role } = useCurrentUser();
   const [wallet, setWallet] = useState(null);
   const [methods, setMethods] = useState([]);
   const [rates, setRates] = useState([]);

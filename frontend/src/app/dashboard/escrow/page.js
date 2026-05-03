@@ -2,11 +2,10 @@
 import { useCallback, useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { escrowAPI } from '@/services/api';
-import { useSession } from '@/lib/useSession';
-import { ROLES } from '@/lib/session';
+import { useCurrentUser } from '@/context/UserContext';
 
 export default function EscrowPage() {
-  const { userId, role } = useSession();
+  const { userId, userRole: role } = useCurrentUser();
   const [escrows, setEscrows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -26,7 +25,7 @@ export default function EscrowPage() {
     try {
       const e = await escrowAPI.getAll();
       const scoped =
-        role === ROLES.admin
+        role === 'admin'
           ? e
           : (e || []).filter(
             (x) => x.client_user_id === userId || x.freelancer_user_id === userId,
@@ -44,7 +43,7 @@ export default function EscrowPage() {
 
   async function handleCreate() {
     try {
-      if (role !== ROLES.client) {
+      if (role !== 'client') {
         setMsg('Error: Only clients can create escrows.');
         return;
       }
@@ -63,7 +62,7 @@ export default function EscrowPage() {
 
   async function handleFund(id) {
     try {
-      if (role !== ROLES.client) {
+      if (role !== 'client') {
         setMsg('Error: Only clients can fund escrows.');
         return;
       }
@@ -77,7 +76,7 @@ export default function EscrowPage() {
 
   async function handleFreeze(id) {
     try {
-      if (role !== ROLES.client) {
+      if (role !== 'client') {
         setMsg('Error: Only clients can freeze escrows.');
         return;
       }
@@ -90,7 +89,7 @@ export default function EscrowPage() {
 
   async function handleClose(id) {
     try {
-      if (role !== ROLES.client) {
+      if (role !== 'client') {
         setMsg('Error: Only clients can close escrows.');
         return;
       }
@@ -114,8 +113,8 @@ export default function EscrowPage() {
           <button
             className="btn-primary"
             onClick={() => setShowCreate(!showCreate)}
-            disabled={role !== ROLES.client}
-            title={role !== ROLES.client ? 'Only clients can create escrows' : ''}
+            disabled={role !== 'client'}
+            title={role !== 'client' ? 'Only clients can create escrows' : ''}
           >
             + Create Escrow
           </button>
