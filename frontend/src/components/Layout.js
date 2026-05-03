@@ -191,38 +191,44 @@ export default function Layout({ children }) {
   const basePath = role === 'admin' ? '/admin' : role === 'client' ? '/client' : '/dashboard';
 
   const navLinks = (() => {
-    // Common items visible to all roles
-    const common = [
-      { href: `${basePath}/wallet`, icon: 'account_balance_wallet', label: 'Wallet' },
-      { href: `${basePath === '/dashboard' ? '/dashboard' : '/dashboard'}/transactions`, icon: 'receipt_long', label: 'Transactions' },
-      { href: `${basePath === '/dashboard' ? '/dashboard' : '/dashboard'}/invoices`, icon: 'description', label: 'Invoices' },
-      { href: `${basePath === '/client' ? '/client' : basePath}/escrow`, icon: 'shield_lock', label: 'Escrow' },
-      { href: '/dashboard/milestones', icon: 'task_alt', label: 'Milestones' },
-      { href: '/dashboard/notifications', icon: 'notifications', label: 'Notifications' },
-    ];
-
+    // 1. ADMIN Navigation
     if (role === 'admin') {
       return [
         { href: '/admin', icon: 'dashboard', label: 'Admin Overview' },
-        ...common,
         { href: '/admin/withdrawals', icon: 'payments', label: 'Withdrawals' },
         { href: '/admin/refunds', icon: 'undo', label: 'Refunds' },
         { href: '/admin/currency', icon: 'currency_exchange', label: 'Currency' },
+        { href: '/dashboard/wallet', icon: 'account_balance_wallet', label: 'Wallet' },
+        { href: '/dashboard/transactions', icon: 'receipt_long', label: 'Transactions' },
+        { href: '/dashboard/notifications', icon: 'notifications', label: 'Notifications' },
       ];
     }
+
+    // 2. CLIENT Navigation
     if (role === 'client') {
       return [
         { href: '/client', icon: 'dashboard', label: 'Client Dashboard' },
-        ...common,
+        { href: '/client/escrow', icon: 'shield_lock', label: 'Escrow' },
+        { href: '/dashboard/wallet', icon: 'account_balance_wallet', label: 'Wallet' },
+        { href: '/dashboard/transactions', icon: 'receipt_long', label: 'Transactions' },
+        { href: '/dashboard/invoices', icon: 'description', label: 'Invoices' },
+        { href: '/dashboard/milestones', icon: 'task_alt', label: 'Milestones' },
         { href: '/dashboard/refunds', icon: 'undo', label: 'Refunds' },
+        { href: '/dashboard/notifications', icon: 'notifications', label: 'Notifications' },
       ];
     }
-    // freelancer (default)
+
+    // 3. FREELANCER Navigation (Default)
     return [
-      { href: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
-      ...common,
+      { href: '/dashboard', icon: 'dashboard', label: 'Freelancer Dashboard' },
+      { href: '/dashboard/wallet', icon: 'account_balance_wallet', label: 'Wallet' },
+      { href: '/dashboard/escrow', icon: 'shield_lock', label: 'Escrow' },
+      { href: '/dashboard/transactions', icon: 'receipt_long', label: 'Transactions' },
+      { href: '/dashboard/invoices', icon: 'description', label: 'Invoices' },
+      { href: '/dashboard/milestones', icon: 'task_alt', label: 'Milestones' },
       { href: '/dashboard/withdrawals', icon: 'payments', label: 'Withdrawals' },
       { href: '/dashboard/refunds', icon: 'undo', label: 'Refunds' },
+      { href: '/dashboard/notifications', icon: 'notifications', label: 'Notifications' },
     ];
   })();
 
