@@ -198,8 +198,6 @@ export default function Layout({ children }) {
         { href: '/admin/withdrawals', icon: 'payments', label: 'Withdrawals' },
         { href: '/admin/refunds', icon: 'undo', label: 'Refunds' },
         { href: '/admin/currency', icon: 'currency_exchange', label: 'Currency' },
-        { href: '/dashboard/wallet', icon: 'account_balance_wallet', label: 'Wallet' },
-        { href: '/dashboard/transactions', icon: 'receipt_long', label: 'Transactions' },
         { href: '/dashboard/notifications', icon: 'notifications', label: 'Notifications' },
       ];
     }
