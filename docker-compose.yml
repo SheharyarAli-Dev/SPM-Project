@@ -1,0 +1,30 @@
+services:
+  # ---------- NestJS Backend ----------
+  backend:
+    image: anasatdocker/spm-module7-backend:latest
+    container_name: spm_module7_backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      DB_HOST: ${DB_HOST:-host.docker.internal}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      DB_NAME: ${DB_NAME:-spm_db}
+      ADMIN_KEY: ${ADMIN_KEY:-change-me-in-production}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # ---------- Next.js Frontend ----------
+  frontend:
+    image: anasatdocker/spm-module7-frontend:latest
+    container_name: spm_module7_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+    depends_on:
+      - backend

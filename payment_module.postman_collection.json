@@ -1,0 +1,1311 @@
+{
+	"info": {
+		"_postman_id": "m7-payment-escrow-collection",
+		"name": "Payment & Escrow Module (Module 7)",
+		"description": "Complete API collection for the Payment & Escrow Management Module.\nBackend: NestJS on http://localhost:3001\n\nAll guarded endpoints require the x-user-id header.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3001",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "adminId",
+			"value": "99",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Wallets",
+			"item": [
+				{
+					"name": "Get Wallet by User ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{userId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wallets/user/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["wallets", "user", "{{userId}}"]
+						},
+						"description": "Retrieve wallet for a specific user. Requires OwnershipGuard (x-user-id header)."
+					},
+					"response": [
+						{
+							"name": "200 — Wallet Found",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"user_id\": 1,\n  \"currency_code\": \"USD\",\n  \"available_balance\": \"5000.0000\",\n  \"held_balance\": \"1200.0000\",\n  \"reserved_balance\": \"0.0000\",\n  \"wallet_status\": \"active\",\n  \"created_at\": \"2025-01-15T10:00:00.000Z\",\n  \"updated_at\": \"2025-01-15T10:00:00.000Z\"\n}"
+						},
+						{
+							"name": "404 — Wallet Not Found",
+							"status": "Not Found",
+							"code": 404,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"statusCode\": 404,\n  \"message\": \"Wallet not found for user 999\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Fund Wallet",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-user-id",
+								"value": "{{userId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": 1,\n  \"amount\": 500\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/wallets/fund",
+							"host": ["{{baseUrl}}"],
+							"path": ["wallets", "fund"]
+						},
+						"description": "Add funds to a user's wallet. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "200 — Wallet Funded",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"user_id\": 1,\n  \"currency_code\": \"USD\",\n  \"available_balance\": \"5500.0000\",\n  \"held_balance\": \"1200.0000\",\n  \"reserved_balance\": \"0.0000\",\n  \"wallet_status\": \"active\",\n  \"created_at\": \"2025-01-15T10:00:00.000Z\",\n  \"updated_at\": \"2025-01-15T12:30:00.000Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Payment Methods",
+			"item": [
+				{
+					"name": "Get All Payment Methods for User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/payment-methods?user_id={{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["payment-methods"],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Get all active (non-deleted) payment methods for a user."
+					},
+					"response": [
+						{
+							"name": "200 — Methods List",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "[\n  {\n    \"id\": 1,\n    \"user_id\": 1,\n    \"method_type\": \"bank\",\n    \"provider_name\": \"HBL Bank\",\n    \"account_title\": \"Ali Khan\",\n    \"account_number_masked\": \"****4521\",\n    \"iban_or_wallet_id\": \"PK12HBL0001234567890\",\n    \"country_code\": \"PK\",\n    \"is_verified\": false,\n    \"is_default\": true,\n    \"created_at\": \"2025-01-10T08:00:00.000Z\",\n    \"updated_at\": \"2025-01-10T08:00:00.000Z\",\n    \"deleted_at\": null\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Create Payment Method",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-user-id",
+								"value": "{{userId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": 1,\n  \"method_type\": \"bank\",\n  \"provider_name\": \"HBL Bank\",\n  \"account_title\": \"Ali Khan\",\n  \"account_number_masked\": \"****4521\",\n  \"iban_or_wallet_id\": \"PK12HBL0001234567890\",\n  \"country_code\": \"PK\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payment-methods",
+							"host": ["{{baseUrl}}"],
+							"path": ["payment-methods"]
+						},
+						"description": "Create a new payment method. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "201 — Method Created",
+							"status": "Created",
+							"code": 201,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 2,\n  \"user_id\": 1,\n  \"method_type\": \"bank\",\n  \"provider_name\": \"HBL Bank\",\n  \"account_title\": \"Ali Khan\",\n  \"account_number_masked\": \"****4521\",\n  \"iban_or_wallet_id\": \"PK12HBL0001234567890\",\n  \"country_code\": \"PK\",\n  \"is_verified\": false,\n  \"is_default\": false,\n  \"created_at\": \"2025-01-15T14:00:00.000Z\",\n  \"updated_at\": \"2025-01-15T14:00:00.000Z\",\n  \"deleted_at\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Set Default Payment Method",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-user-id",
+								"value": "{{userId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payment-methods/1/set-default",
+							"host": ["{{baseUrl}}"],
+							"path": ["payment-methods", "1", "set-default"]
+						},
+						"description": "Set a payment method as default. Unsets all others for the user. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "200 — Default Set",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"user_id\": 1,\n  \"method_type\": \"bank\",\n  \"provider_name\": \"HBL Bank\",\n  \"account_title\": \"Ali Khan\",\n  \"account_number_masked\": \"****4521\",\n  \"iban_or_wallet_id\": \"PK12HBL0001234567890\",\n  \"country_code\": \"PK\",\n  \"is_verified\": false,\n  \"is_default\": true,\n  \"created_at\": \"2025-01-10T08:00:00.000Z\",\n  \"updated_at\": \"2025-01-15T15:00:00.000Z\",\n  \"deleted_at\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Remove Payment Method (Soft Delete)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/payment-methods/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["payment-methods", "1"]
+						},
+						"description": "Soft-delete a payment method by setting deleted_at. No guard required (security issue)."
+					},
+					"response": [
+						{
+							"name": "200 — Soft Deleted",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"generatedMaps\": [],\n  \"raw\": [],\n  \"affected\": 1\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Escrow",
+			"item": [
+				{
+					"name": "Get All Escrows",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/escrow",
+							"host": ["{{baseUrl}}"],
+							"path": ["escrow"]
+						},
+						"description": "Retrieve all escrow accounts."
+					},
+					"response": [
+						{
+							"name": "200 — Escrow List",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "[\n  {\n    \"id\": 1,\n    \"project_id\": 1,\n    \"client_user_id\": 1,\n    \"freelancer_user_id\": 2,\n    \"total_amount\": \"5000.0000\",\n    \"funded_amount\": \"3000.0000\",\n    \"released_amount\": \"0.0000\",\n    \"refunded_amount\": \"0.0000\",\n    \"currency_code\": \"USD\",\n    \"escrow_status\": \"active\",\n    \"funded_at\": \"2025-01-12T09:00:00.000Z\",\n    \"closed_at\": null,\n    \"created_at\": \"2025-01-10T08:00:00.000Z\",\n    \"updated_at\": \"2025-01-12T09:00:00.000Z\"\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Escrow by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/escrow/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["escrow", "1"]
+						},
+						"description": "Retrieve a single escrow by ID."
+					},
+					"response": [
+						{
+							"name": "200 — Escrow Found",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"project_id\": 1,\n  \"client_user_id\": 1,\n  \"freelancer_user_id\": 2,\n  \"total_amount\": \"5000.0000\",\n  \"funded_amount\": \"3000.0000\",\n  \"released_amount\": \"0.0000\",\n  \"refunded_amount\": \"0.0000\",\n  \"currency_code\": \"USD\",\n  \"escrow_status\": \"active\",\n  \"funded_at\": \"2025-01-12T09:00:00.000Z\",\n  \"closed_at\": null,\n  \"created_at\": \"2025-01-10T08:00:00.000Z\",\n  \"updated_at\": \"2025-01-12T09:00:00.000Z\"\n}"
+						},
+						{
+							"name": "404 — Not Found",
+							"status": "Not Found",
+							"code": 404,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"statusCode\": 404,\n  \"message\": \"Escrow 999 not found\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Escrows by Project ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/escrow/project/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["escrow", "project", "1"]
+						},
+						"description": "Retrieve all escrows for a given project."
+					},
+					"response": [
+						{
+							"name": "200 — Escrows for Project",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "[\n  {\n    \"id\": 1,\n    \"project_id\": 1,\n    \"client_user_id\": 1,\n    \"freelancer_user_id\": 2,\n    \"total_amount\": \"5000.0000\",\n    \"funded_amount\": \"3000.0000\",\n    \"released_amount\": \"0.0000\",\n    \"refunded_amount\": \"0.0000\",\n    \"currency_code\": \"USD\",\n    \"escrow_status\": \"active\",\n    \"funded_at\": \"2025-01-12T09:00:00.000Z\",\n    \"closed_at\": null,\n    \"created_at\": \"2025-01-10T08:00:00.000Z\",\n    \"updated_at\": \"2025-01-12T09:00:00.000Z\"\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Create Escrow",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-user-id",
+								"value": "{{userId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"project_id\": 1,\n  \"client_user_id\": 1,\n  \"freelancer_user_id\": 2,\n  \"currency_code\": \"USD\",\n  \"total_amount\": 5000\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/escrow",
+							"host": ["{{baseUrl}}"],
+							"path": ["escrow"]
+						},
+						"description": "Create a new escrow account. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "201 — Escrow Created",
+							"status": "Created",
+							"code": 201,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 2,\n  \"project_id\": 1,\n  \"client_user_id\": 1,\n  \"freelancer_user_id\": 2,\n  \"total_amount\": 5000,\n  \"funded_amount\": \"0.0000\",\n  \"released_amount\": \"0.0000\",\n  \"refunded_amount\": \"0.0000\",\n  \"currency_code\": \"USD\",\n  \"escrow_status\": \"pending\",\n  \"funded_at\": null,\n  \"closed_at\": null,\n  \"created_at\": \"2025-01-15T10:00:00.000Z\",\n  \"updated_at\": \"2025-01-15T10:00:00.000Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Fund Escrow",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-user-id",
+								"value": "{{userId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount\": 3000\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/escrow/1/fund",
+							"host": ["{{baseUrl}}"],
+							"path": ["escrow", "1", "fund"]
+						},
+						"description": "Fund an escrow account. Sets status to 'active'. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "200 — Escrow Funded",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"project_id\": 1,\n  \"client_user_id\": 1,\n  \"freelancer_user_id\": 2,\n  \"total_amount\": \"5000.0000\",\n  \"funded_amount\": \"3000.0000\",\n  \"released_amount\": \"0.0000\",\n  \"refunded_amount\": \"0.0000\",\n  \"currency_code\": \"USD\",\n  \"escrow_status\": \"active\",\n  \"funded_at\": \"2025-01-15T11:00:00.000Z\",\n  \"closed_at\": null,\n  \"created_at\": \"2025-01-10T08:00:00.000Z\",\n  \"updated_at\": \"2025-01-15T11:00:00.000Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Freeze Escrow",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{userId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/escrow/1/freeze",
+							"host": ["{{baseUrl}}"],
+							"path": ["escrow", "1", "freeze"]
+						},
+						"description": "Freeze an escrow account. Sets status to 'frozen'. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "200 — Escrow Frozen",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"project_id\": 1,\n  \"escrow_status\": \"frozen\",\n  \"funded_amount\": \"3000.0000\",\n  \"total_amount\": \"5000.0000\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Close Escrow",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{userId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/escrow/1/close",
+							"host": ["{{baseUrl}}"],
+							"path": ["escrow", "1", "close"]
+						},
+						"description": "Close an escrow account. Sets status to 'completed'. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "200 — Escrow Closed",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"project_id\": 1,\n  \"escrow_status\": \"completed\",\n  \"closed_at\": \"2025-01-20T09:00:00.000Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Milestone Payments",
+			"item": [
+				{
+					"name": "Get Milestones by Escrow ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/milestone-payments?escrow_id=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["milestone-payments"],
+							"query": [
+								{
+									"key": "escrow_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get all milestone payments for a given escrow."
+					},
+					"response": [
+						{
+							"name": "200 — Milestones List",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "[\n  {\n    \"id\": 1,\n    \"escrow_id\": 1,\n    \"milestone_id\": 1,\n    \"title\": \"UI/UX Design Delivery\",\n    \"amount\": \"1500.0000\",\n    \"due_date\": \"2025-02-01\",\n    \"approval_status\": \"pending\",\n    \"release_status\": \"not_released\",\n    \"approved_at\": null,\n    \"released_at\": null,\n    \"created_at\": \"2025-01-15T10:00:00.000Z\",\n    \"updated_at\": \"2025-01-15T10:00:00.000Z\"\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Milestone by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/milestone-payments/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["milestone-payments", "1"]
+						},
+						"description": "Retrieve a single milestone payment."
+					},
+					"response": [
+						{
+							"name": "200 — Milestone Found",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"escrow_id\": 1,\n  \"milestone_id\": 1,\n  \"title\": \"UI/UX Design Delivery\",\n  \"amount\": \"1500.0000\",\n  \"due_date\": \"2025-02-01\",\n  \"approval_status\": \"pending\",\n  \"release_status\": \"not_released\",\n  \"approved_at\": null,\n  \"released_at\": null,\n  \"created_at\": \"2025-01-15T10:00:00.000Z\",\n  \"updated_at\": \"2025-01-15T10:00:00.000Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Milestone Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-user-id",
+								"value": "{{userId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"escrow_id\": 1,\n  \"milestone_id\": 1,\n  \"title\": \"UI/UX Design Delivery\",\n  \"amount\": 1500,\n  \"due_date\": \"2025-02-01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/milestone-payments",
+							"host": ["{{baseUrl}}"],
+							"path": ["milestone-payments"]
+						},
+						"description": "Create a new milestone payment. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "201 — Milestone Created",
+							"status": "Created",
+							"code": 201,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"escrow_id\": 1,\n  \"milestone_id\": 1,\n  \"title\": \"UI/UX Design Delivery\",\n  \"amount\": 1500,\n  \"due_date\": \"2025-02-01\",\n  \"approval_status\": \"pending\",\n  \"release_status\": \"not_released\",\n  \"approved_at\": null,\n  \"released_at\": null,\n  \"created_at\": \"2025-01-15T10:00:00.000Z\",\n  \"updated_at\": \"2025-01-15T10:00:00.000Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Approve Milestone",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{userId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/milestone-payments/1/approve",
+							"host": ["{{baseUrl}}"],
+							"path": ["milestone-payments", "1", "approve"]
+						},
+						"description": "Approve a milestone payment. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "200 — Approved",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"approval_status\": \"approved\",\n  \"approved_at\": \"2025-01-20T14:00:00.000Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Reject Milestone",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{userId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/milestone-payments/1/reject",
+							"host": ["{{baseUrl}}"],
+							"path": ["milestone-payments", "1", "reject"]
+						},
+						"description": "Reject a milestone payment. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "200 — Rejected",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"approval_status\": \"rejected\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Release Milestone Payment",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{userId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/milestone-payments/1/release",
+							"host": ["{{baseUrl}}"],
+							"path": ["milestone-payments", "1", "release"]
+						},
+						"description": "Release payment for an approved milestone. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "200 — Released",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"release_status\": \"released\",\n  \"released_at\": \"2025-01-22T10:00:00.000Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Invoices",
+			"item": [
+				{
+					"name": "Get Invoices by User ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/invoices?user_id={{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["invoices"],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Get all invoices where user is client or freelancer."
+					},
+					"response": [
+						{
+							"name": "200 — Invoice List",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "[\n  {\n    \"id\": 1,\n    \"invoice_number\": \"INV-1705312000000\",\n    \"milestone_payment_id\": 1,\n    \"project_id\": 1,\n    \"client_user_id\": 1,\n    \"freelancer_user_id\": 2,\n    \"gross_amount\": \"1500.0000\",\n    \"platform_fee\": \"75.0000\",\n    \"tax_amount\": \"45.0000\",\n    \"net_amount\": \"1380.0000\",\n    \"currency_code\": \"USD\",\n    \"invoice_pdf_url\": null,\n    \"generated_at\": \"2025-01-15T12:00:00.000Z\"\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Invoice by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/invoices/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["invoices", "1"]
+						},
+						"description": "Retrieve a single invoice."
+					},
+					"response": [
+						{
+							"name": "200 — Invoice Found",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"invoice_number\": \"INV-1705312000000\",\n  \"milestone_payment_id\": 1,\n  \"project_id\": 1,\n  \"client_user_id\": 1,\n  \"freelancer_user_id\": 2,\n  \"gross_amount\": \"1500.0000\",\n  \"platform_fee\": \"75.0000\",\n  \"tax_amount\": \"45.0000\",\n  \"net_amount\": \"1380.0000\",\n  \"currency_code\": \"USD\",\n  \"invoice_pdf_url\": null,\n  \"generated_at\": \"2025-01-15T12:00:00.000Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Invoice",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"milestone_payment_id\": 1,\n  \"project_id\": 1,\n  \"client_user_id\": 1,\n  \"freelancer_user_id\": 2,\n  \"gross_amount\": 1500,\n  \"currency_code\": \"USD\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/invoices",
+							"host": ["{{baseUrl}}"],
+							"path": ["invoices"]
+						},
+						"description": "Create an invoice. Auto-calculates platform_fee (5%), tax (3%), net_amount. No guard."
+					},
+					"response": [
+						{
+							"name": "201 — Invoice Created",
+							"status": "Created",
+							"code": 201,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 2,\n  \"invoice_number\": \"INV-1705315600000\",\n  \"milestone_payment_id\": 1,\n  \"project_id\": 1,\n  \"client_user_id\": 1,\n  \"freelancer_user_id\": 2,\n  \"gross_amount\": 1500,\n  \"platform_fee\": 75,\n  \"tax_amount\": 45,\n  \"net_amount\": 1380,\n  \"currency_code\": \"USD\",\n  \"invoice_pdf_url\": null,\n  \"generated_at\": \"2025-01-15T14:00:00.000Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "Get Transactions by Wallet ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/transactions?wallet_id=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["transactions"],
+							"query": [
+								{
+									"key": "wallet_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get all transactions for a wallet."
+					},
+					"response": [
+						{
+							"name": "200 — Transactions List",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "[\n  {\n    \"id\": 1,\n    \"wallet_id\": 1,\n    \"escrow_id\": 1,\n    \"invoice_id\": null,\n    \"sender_user_id\": 1,\n    \"receiver_user_id\": 2,\n    \"transaction_type\": \"escrow_funding\",\n    \"amount\": \"3000.0000\",\n    \"currency_code\": \"USD\",\n    \"status\": \"completed\",\n    \"reference_no\": \"TXN-001\",\n    \"description\": \"Escrow funding for Project #1\",\n    \"created_at\": \"2025-01-12T09:00:00.000Z\",\n    \"processed_at\": \"2025-01-12T09:00:05.000Z\"\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Transaction by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/transactions/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["transactions", "1"]
+						},
+						"description": "Retrieve a single transaction."
+					},
+					"response": [
+						{
+							"name": "200 — Transaction Found",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"wallet_id\": 1,\n  \"escrow_id\": 1,\n  \"invoice_id\": null,\n  \"sender_user_id\": 1,\n  \"receiver_user_id\": 2,\n  \"transaction_type\": \"escrow_funding\",\n  \"amount\": \"3000.0000\",\n  \"currency_code\": \"USD\",\n  \"status\": \"completed\",\n  \"reference_no\": \"TXN-001\",\n  \"description\": \"Escrow funding for Project #1\",\n  \"created_at\": \"2025-01-12T09:00:00.000Z\",\n  \"processed_at\": \"2025-01-12T09:00:05.000Z\"\n}"
+						},
+						{
+							"name": "404 — Not Found",
+							"status": "Not Found",
+							"code": 404,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"statusCode\": 404,\n  \"message\": \"Transaction 999 not found\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Withdrawals",
+			"item": [
+				{
+					"name": "Get All Withdrawals",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/withdrawals",
+							"host": ["{{baseUrl}}"],
+							"path": ["withdrawals"]
+						},
+						"description": "Get all withdrawal requests (no filtering)."
+					},
+					"response": [
+						{
+							"name": "200 — Withdrawals List",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "[\n  {\n    \"id\": 1,\n    \"user_id\": 1,\n    \"wallet_id\": 1,\n    \"payment_method_id\": 1,\n    \"transaction_id\": null,\n    \"amount\": \"500.0000\",\n    \"processing_fee\": \"10.0000\",\n    \"net_amount\": \"490.0000\",\n    \"currency_code\": \"USD\",\n    \"status\": \"pending\",\n    \"requested_at\": \"2025-01-15T16:00:00.000Z\",\n    \"processed_at\": null,\n    \"admin_note\": null\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Withdrawal by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/withdrawals/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["withdrawals", "1"]
+						},
+						"description": "Retrieve a single withdrawal."
+					},
+					"response": [
+						{
+							"name": "200 — Withdrawal Found",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"user_id\": 1,\n  \"wallet_id\": 1,\n  \"payment_method_id\": 1,\n  \"transaction_id\": null,\n  \"amount\": \"500.0000\",\n  \"processing_fee\": \"10.0000\",\n  \"net_amount\": \"490.0000\",\n  \"currency_code\": \"USD\",\n  \"status\": \"pending\",\n  \"requested_at\": \"2025-01-15T16:00:00.000Z\",\n  \"processed_at\": null,\n  \"admin_note\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Withdrawal Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-user-id",
+								"value": "{{userId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount\": 500,\n  \"payment_method_id\": 1,\n  \"wallet_id\": 1,\n  \"currency_code\": \"USD\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/withdrawals",
+							"host": ["{{baseUrl}}"],
+							"path": ["withdrawals"]
+						},
+						"description": "Create a withdrawal request. Fee is 2%. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "201 — Withdrawal Created",
+							"status": "Created",
+							"code": 201,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 2,\n  \"user_id\": 1,\n  \"wallet_id\": 1,\n  \"payment_method_id\": 1,\n  \"transaction_id\": null,\n  \"amount\": \"500.0000\",\n  \"processing_fee\": \"10.0000\",\n  \"net_amount\": \"490.0000\",\n  \"currency_code\": \"USD\",\n  \"status\": \"pending\",\n  \"requested_at\": \"2025-01-15T17:00:00.000Z\",\n  \"processed_at\": null,\n  \"admin_note\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Approve Withdrawal (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{adminId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/withdrawals/1/approve",
+							"host": ["{{baseUrl}}"],
+							"path": ["withdrawals", "1", "approve"]
+						},
+						"description": "Admin approves a withdrawal. Sets status to 'completed'. Requires OwnershipGuard (any x-user-id)."
+					},
+					"response": [
+						{
+							"name": "200 — Approved",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"status\": \"completed\",\n  \"processed_at\": \"2025-01-16T09:00:00.000Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Reject Withdrawal (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-user-id",
+								"value": "{{adminId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"admin_note\": \"Insufficient documentation provided.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/withdrawals/1/reject",
+							"host": ["{{baseUrl}}"],
+							"path": ["withdrawals", "1", "reject"]
+						},
+						"description": "Admin rejects a withdrawal with a note. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "200 — Rejected",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"status\": \"rejected\",\n  \"admin_note\": \"Insufficient documentation provided.\",\n  \"processed_at\": \"2025-01-16T09:00:00.000Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Refunds",
+			"item": [
+				{
+					"name": "Get All Refunds",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/refunds",
+							"host": ["{{baseUrl}}"],
+							"path": ["refunds"]
+						},
+						"description": "Get all refund requests."
+					},
+					"response": [
+						{
+							"name": "200 — Refunds List",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "[\n  {\n    \"id\": 1,\n    \"transaction_id\": 1,\n    \"escrow_id\": 1,\n    \"milestone_payment_id\": null,\n    \"requested_by\": 2,\n    \"approved_by_admin\": null,\n    \"reason\": \"Work not delivered as agreed\",\n    \"refund_amount\": \"1500.0000\",\n    \"status\": \"pending\",\n    \"created_at\": \"2025-01-18T10:00:00.000Z\",\n    \"resolved_at\": null\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Refund by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/refunds/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["refunds", "1"]
+						},
+						"description": "Retrieve a single refund."
+					},
+					"response": [
+						{
+							"name": "200 — Refund Found",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"transaction_id\": 1,\n  \"escrow_id\": 1,\n  \"milestone_payment_id\": null,\n  \"requested_by\": 2,\n  \"approved_by_admin\": null,\n  \"reason\": \"Work not delivered as agreed\",\n  \"refund_amount\": \"1500.0000\",\n  \"status\": \"pending\",\n  \"created_at\": \"2025-01-18T10:00:00.000Z\",\n  \"resolved_at\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Refund Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-user-id",
+								"value": "{{userId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transaction_id\": 1,\n  \"escrow_id\": 1,\n  \"milestone_payment_id\": 1,\n  \"requested_by\": 1,\n  \"reason\": \"Work not delivered as agreed\",\n  \"refund_amount\": 1500\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/refunds",
+							"host": ["{{baseUrl}}"],
+							"path": ["refunds"]
+						},
+						"description": "Create a refund request. requested_by must match x-user-id. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "201 — Refund Created",
+							"status": "Created",
+							"code": 201,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 2,\n  \"transaction_id\": 1,\n  \"escrow_id\": 1,\n  \"milestone_payment_id\": 1,\n  \"requested_by\": 1,\n  \"approved_by_admin\": null,\n  \"reason\": \"Work not delivered as agreed\",\n  \"refund_amount\": 1500,\n  \"status\": \"pending\",\n  \"created_at\": \"2025-01-18T12:00:00.000Z\",\n  \"resolved_at\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Approve Refund (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-user-id",
+								"value": "{{adminId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"admin_id\": 99\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/refunds/1/approve",
+							"host": ["{{baseUrl}}"],
+							"path": ["refunds", "1", "approve"]
+						},
+						"description": "Admin approves a refund. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "200 — Refund Approved",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"status\": \"approved\",\n  \"approved_by_admin\": 99,\n  \"resolved_at\": \"2025-01-19T09:00:00.000Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Reject Refund (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-user-id",
+								"value": "{{adminId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"admin_id\": 99\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/refunds/1/reject",
+							"host": ["{{baseUrl}}"],
+							"path": ["refunds", "1", "reject"]
+						},
+						"description": "Admin rejects a refund. Requires OwnershipGuard."
+					},
+					"response": [
+						{
+							"name": "200 — Refund Rejected",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"status\": \"rejected\",\n  \"approved_by_admin\": 99,\n  \"resolved_at\": \"2025-01-19T09:00:00.000Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Currency Rates",
+			"item": [
+				{
+					"name": "Get All Active Rates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/currency",
+							"host": ["{{baseUrl}}"],
+							"path": ["currency"]
+						},
+						"description": "Get all active currency rates."
+					},
+					"response": [
+						{
+							"name": "200 — Rates List",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "[\n  {\n    \"id\": 1,\n    \"base_currency\": \"USD\",\n    \"target_currency\": \"PKR\",\n    \"exchange_rate\": \"278.50000000\",\n    \"source_api\": \"manual\",\n    \"fetched_at\": \"2025-01-15T08:00:00.000Z\",\n    \"is_active\": true\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Specific Rate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/currency/rate?base=USD&target=PKR",
+							"host": ["{{baseUrl}}"],
+							"path": ["currency", "rate"],
+							"query": [
+								{
+									"key": "base",
+									"value": "USD"
+								},
+								{
+									"key": "target",
+									"value": "PKR"
+								}
+							]
+						},
+						"description": "Get a specific exchange rate by base and target currency."
+					},
+					"response": [
+						{
+							"name": "200 — Rate Found",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"base_currency\": \"USD\",\n  \"target_currency\": \"PKR\",\n  \"exchange_rate\": \"278.50000000\",\n  \"source_api\": \"manual\",\n  \"fetched_at\": \"2025-01-15T08:00:00.000Z\",\n  \"is_active\": true\n}"
+						},
+						{
+							"name": "404 — Rate Not Found",
+							"status": "Not Found",
+							"code": 404,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"statusCode\": 404,\n  \"message\": \"Rate not found for EUR → GBP\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Currency Rate",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"base_currency\": \"USD\",\n  \"target_currency\": \"PKR\",\n  \"exchange_rate\": 278.50,\n  \"source_api\": \"manual\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/currency",
+							"host": ["{{baseUrl}}"],
+							"path": ["currency"]
+						},
+						"description": "Create a new currency rate entry. No guard (security issue)."
+					},
+					"response": [
+						{
+							"name": "201 — Rate Created",
+							"status": "Created",
+							"code": 201,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 2,\n  \"base_currency\": \"USD\",\n  \"target_currency\": \"PKR\",\n  \"exchange_rate\": 278.50,\n  \"source_api\": \"manual\",\n  \"fetched_at\": \"2025-01-15T14:00:00.000Z\",\n  \"is_active\": true\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "Get Notifications by Recipient",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/notifications?recipient_id={{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["notifications"],
+							"query": [
+								{
+									"key": "recipient_id",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Get all notifications for a recipient."
+					},
+					"response": [
+						{
+							"name": "200 — Notifications List",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "[\n  {\n    \"id\": 1,\n    \"transaction_id\": 1,\n    \"withdrawal_id\": null,\n    \"refund_id\": null,\n    \"recipient_id\": 1,\n    \"notification_type\": \"payment_received\",\n    \"title\": \"Payment Received\",\n    \"message\": \"You received $3000 for Project #1\",\n    \"channel\": \"in_app\",\n    \"status\": \"pending\",\n    \"sent_at\": null,\n    \"created_at\": \"2025-01-15T10:00:00.000Z\"\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Notification by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/notifications/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["notifications", "1"]
+						},
+						"description": "Retrieve a single notification."
+					},
+					"response": [
+						{
+							"name": "200 — Notification Found",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"transaction_id\": 1,\n  \"withdrawal_id\": null,\n  \"refund_id\": null,\n  \"recipient_id\": 1,\n  \"notification_type\": \"payment_received\",\n  \"title\": \"Payment Received\",\n  \"message\": \"You received $3000 for Project #1\",\n  \"channel\": \"in_app\",\n  \"status\": \"pending\",\n  \"sent_at\": null,\n  \"created_at\": \"2025-01-15T10:00:00.000Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Notification",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transaction_id\": 1,\n  \"recipient_id\": 1,\n  \"notification_type\": \"payment_received\",\n  \"title\": \"Payment Received\",\n  \"message\": \"You received $3000 for Project #1\",\n  \"channel\": \"in_app\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/notifications",
+							"host": ["{{baseUrl}}"],
+							"path": ["notifications"]
+						},
+						"description": "Create a notification. No guard (security issue)."
+					},
+					"response": [
+						{
+							"name": "201 — Notification Created",
+							"status": "Created",
+							"code": 201,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 2,\n  \"transaction_id\": 1,\n  \"withdrawal_id\": null,\n  \"refund_id\": null,\n  \"recipient_id\": 1,\n  \"notification_type\": \"payment_received\",\n  \"title\": \"Payment Received\",\n  \"message\": \"You received $3000 for Project #1\",\n  \"channel\": \"in_app\",\n  \"status\": \"pending\",\n  \"sent_at\": null,\n  \"created_at\": \"2025-01-15T14:00:00.000Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Mark Notification as Read",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/notifications/1/read",
+							"host": ["{{baseUrl}}"],
+							"path": ["notifications", "1", "read"]
+						},
+						"description": "Mark a notification as read. No guard."
+					},
+					"response": [
+						{
+							"name": "200 — Marked Read",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "application/json"}],
+							"body": "{\n  \"id\": 1,\n  \"status\": \"read\",\n  \"sent_at\": \"2025-01-15T15:00:00.000Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "App Root",
+			"item": [
+				{
+					"name": "Health Check (Hello World)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/",
+							"host": ["{{baseUrl}}"],
+							"path": [""]
+						},
+						"description": "Root endpoint — returns Hello World if AppService is connected."
+					},
+					"response": [
+						{
+							"name": "200 — Hello World",
+							"status": "OK",
+							"code": 200,
+							"header": [{"key": "Content-Type", "value": "text/html"}],
+							"body": "Hello World!"
+						}
+					]
+				}
+			]
+		}
+	]
+}
